@@ -86,10 +86,6 @@ void cli_print_ver(const char *const *argv)
 void cli_print_ascii_tbls(const char *const *argv)
 {
     (void) argv;
-    // TODO remove this line after command is implemented
-    /*uart0_puts_p(
-        PSTR("Command not implemented yet.\r\n\tImplement it by yourself!\r\n"));
-        */
     unsigned char ascii[128] = {0};
 
     for (unsigned char i = 0; i < sizeof(ascii); i++) {
@@ -98,25 +94,29 @@ void cli_print_ascii_tbls(const char *const *argv)
 
     print_ascii_tbl();
     print_for_human(ascii, sizeof(ascii));
-
 }
 
 
 void cli_handle_number(const char *const *argv)
 {
-    // TODO remove those two lines after command is implemented
-    (void) argv;
-    /*uart0_puts_p(
-        PSTR("Command not implemented yet.\r\n\tImplement it by yourself!\r\n"));*/
-    int input = atoi(argv[1]);
-
     for (size_t i = 0; i < strlen(argv[1]); i++) {
         if (!isdigit(argv[1][i])) {
             uart0_puts_p(PSTR("Argument is not a decimal number!\r\n"));
             return;
         } else {
-            uart0_puts_p(PSTR("Ime lahti tolgus \r\n"));
+            int input = atoi(argv[1]);
+
+            if (input >= 0 && input < 10) {
+                uart0_puts_p(PSTR("You entered number "));
+                uart0_puts_p((PGM_P)pgm_read_word(&number_name[input]));
+                uart0_puts_p(PSTR("\r\n"));
+                return;
+            } else {
+                uart0_puts_p(PSTR("Please enter number between 0 and 9! \r\n"));
+                return;
+            }
         }
+    }
 }
 
 

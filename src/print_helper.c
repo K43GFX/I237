@@ -1,18 +1,22 @@
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include "../lib/andygock_avr-uart/uart.h"
 
-void print_ascii_tbl(void) {
+void print_ascii_tbl(void)
+{
     for (char c = ' '; c <= '~'; c++) {
         uart0_putc(c);
     }
+
     uart0_puts_p(PSTR("\r\n"));
 }
 
-void print_for_human(const unsigned char *array, const size_t len) {
+
+void print_for_human(const unsigned char *array, const size_t len)
+{
     for (size_t i = 0; i < len; i++) {
         if (array[i] >= ' ' && array[i] <= '~') {
             uart0_putc(array[i]);
@@ -23,5 +27,6 @@ void print_for_human(const unsigned char *array, const size_t len) {
             uart0_putc('"');
         }
     }
+
     uart0_puts_p(PSTR("\r\n"));
 }

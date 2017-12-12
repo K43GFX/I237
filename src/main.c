@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -9,32 +9,25 @@
 #include "hmi_msg.h"
 #include "../lib/helius_microrl/microrl.h"
 #include "cli_microrl.h"
+#include <stdlib.h>
 
 #define UART_BAUD 9600
 #define UART_STATUS_MASK 0x00FF
 
-#define BLINK_DELAY_MS  2000
+#define BLINK_DELAY_MS  900
 #define LED_RED         PORTA0 // Arduino Mega digital pin 22
 #define LED_GREEN       PORTA2 // Arduino Mega digital pin 24
 
-#define COUNT_SECONDS
-
-#define ASCII_PRINT
-
-#ifdef ASCII_PRINT
-#include <stdlib.h> // stdlib is needed to use ltoa() - Long to ASCII
-#endif 
-
-volatile uint32_t counter_1;
+volatile uint32_t seconds;
 static uint32_t prev_time;
 
-//  Create  microrl object  and pointer on  it
+// Create microrl object and pointer on it
 microrl_t rl;
 microrl_t *prl = &rl;
 
-static inline void init_counter_1(void)
+static inline void init_timer(void)
 {
-    counter_1 = 0; // Set counter to random number 0x19D5F539 in HEX. Set it to 0 if you want
+    seconds = 0; // Set counter to random number 0x19D5F539 in HEX. Set it to 0 if you want
     TCCR1A = 0;
     TCCR1B = 0;
     TCCR1B |= _BV(WGM12); // Turn on CTC (Clear Timer on Compare)
@@ -44,62 +37,63 @@ static inline void init_counter_1(void)
 }
 
 
-static inline void init_led(void)
+static inline void init_leds(void)
 {
-    /* Set pin 0 of PORTA (ARDUINO mega pin 22) for output and set low */
-    DDRA |= _BV(LED_RED);
-    PORTA &= ~_BV(LED_RED);
+    /* RGB LED board set up and off */
+    DDRA |= _BV(LED_RED) | _BV(LED_GREEN);
+    PORTA &= ~(_BV(LED_RED) | _BV(LED_GREEN));
 }
 
 
 static inline void heartbeat(void)
 {
+    /* Clone counter */
     uint32_t now;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
-        now = counter_1;
+        now = seconds;
     }
-
     char ascii_buf[11] = {0x00};
 
     if (prev_time != now) {
-        //Print uptime to uart1
         ltoa(now, ascii_buf, 10);
         uart1_puts_p(PSTR("Uptime: "));
         uart1_puts(ascii_buf);
         uart1_puts_p(PSTR(" s.\r\n"));
     }
-    prev_time = now;
+
+    //Toggle LED
     PORTA ^= _BV(LED_GREEN);
-}
-
-
-
-static inline void simu_big_prog(void)
-{
-    /* Simulate big program with delay and toggle LED */
-    PORTA ^= _BV(LED_RED);
-    _delay_ms(BLINK_DELAY_MS);
+    prev_time = now;
 }
 
 
 void main(void)
 {
+    /* Initialize LEDs */
+    init_leds();
+    /* Initialize UART interfaces */
     uart0_init(UART_BAUD_SELECT(UART_BAUD, F_CPU));
     uart1_init(UART_BAUD_SELECT(UART_BAUD, F_CPU));
-    uart0_puts_p(PSTR("Console started\r\n"));
-    init_counter_1();
+    /* Print out student name and terminal prefix */
+    uart0_puts_p(PSTR(STUD_NAME "\r\n"));
+    uart0_puts_p(PSTR("Use backspace to delete entry and enter to confirm.\r\n"));
+    uart0_puts_p(PSTR("Arrow keys and del doesn't work currently.\r\n"));
+    /* Initialize heartbeat timer */
+    init_timer();
+    /* Start terminal */
     microrl_init(prl, uart0_puts);
     microrl_set_execute_callback(prl, cli_execute);
+    /* Allow interruptions */
     sei();
 
     while (1) {
         heartbeat();
         microrl_insert_char(prl, (uart0_getc() & UART_STATUS_MASK));
     }
-
 }
 
 ISR(TIMER1_COMPA_vect)
 {
-  counter_1++;
+    /* Increase heartbeat counter by 1 */
+    seconds++;
 }
