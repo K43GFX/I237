@@ -10,6 +10,8 @@
 #include "../lib/helius_microrl/microrl.h"
 #include "cli_microrl.h"
 #include <stdlib.h>
+#include "../lib/matejx_avr_lib/mfrc522.h"
+#include "../lib/andy_brown_memdebug/memdebug.h"
 
 #define UART_BAUD 9600
 #define UART_STATUS_MASK 0x00FF
@@ -18,8 +20,17 @@
 #define LED_RED         PORTA0 // Arduino Mega digital pin 22
 #define LED_GREEN       PORTA2 // Arduino Mega digital pin 24
 
+
 volatile uint32_t seconds;
 static uint32_t prev_time;
+
+
+static inline void init_rfid_reader(void)	
+{
+	/*	Init	RFID-RC522	*/
+	MFRC522_init();
+	PCD_Init();
+}
 
 // Create microrl object and pointer on it
 microrl_t rl;
@@ -83,6 +94,8 @@ void main(void)
     /* Start terminal */
     microrl_init(prl, uart0_puts);
     microrl_set_execute_callback(prl, cli_execute);
+
+    init_rfid_reader();
     /* Allow interruptions */
     sei();
 
