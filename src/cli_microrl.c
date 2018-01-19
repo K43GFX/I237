@@ -42,12 +42,15 @@ const char ascii_help[] PROGMEM = "Print ASCII tables";
 const char number_cmd[] PROGMEM = "number";
 const char number_help[] PROGMEM =
     "Print and display matching number Usage: number <decimal number>";
-const char read_help[] PROGMEM = "Identifies card that is being used with RFID reader";
+const char read_help[] PROGMEM =
+    "Identifies card that is being used with RFID reader";
 const char read_cmd[] PROGMEM = "read";
 const char new_help[] PROGMEM = "Add new card to authorized list";
 const char new_cmd[] PROGMEM = "new";
 const char remove_help[] PROGMEM = "Remove card from authorized list";
 const char remove_cmd[] PROGMEM = "remove";
+const char show_help[] PROGMEM = "Show list of authorized cards";
+const char show_cmd[] PROGMEM = "show";
 
 const cli_cmd_t cli_cmds[] = {
     {help_cmd, help_help, cli_print_help, 0},
@@ -57,7 +60,8 @@ const cli_cmd_t cli_cmds[] = {
     {number_cmd, number_help, cli_handle_number, 1},
     {read_cmd, read_help, rfid_read, 0},
     {new_cmd, new_help, cli_rfid_new, 2},
-    {remove_cmd, remove_help, cli_rfid_remove, 1}
+    {remove_cmd, remove_help, cli_rfid_remove, 1},
+    {show_cmd, show_help, rfid_show, 0}
 };
 
 void cli_rfid_new(const char *const *argv)

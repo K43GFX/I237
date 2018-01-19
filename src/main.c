@@ -8,6 +8,7 @@
 #include "../lib/andygock_avr-uart/uart.h"
 #include "hmi_msg.h"
 #include "../lib/helius_microrl/microrl.h"
+#include "../lib/hd44780_111/hd44780.h"
 #include "cli_microrl.h"
 #include <stdlib.h>
 #include "../lib/matejx_avr_lib/mfrc522.h"
@@ -25,11 +26,11 @@ volatile uint32_t seconds;
 static uint32_t prev_time;
 
 
-static inline void init_rfid_reader(void)	
+static inline void init_rfid_reader(void)
 {
-	/*	Init	RFID-RC522	*/
-	MFRC522_init();
-	PCD_Init();
+    /*  Init    RFID-RC522  */
+    MFRC522_init();
+    PCD_Init();
 }
 
 // Create microrl object and pointer on it
@@ -82,6 +83,9 @@ void main(void)
 {
     /* Initialize LEDs */
     init_leds();
+    lcd_init();
+    lcd_clrscr();
+    lcd_puts_P(PSTR(STUD_NAME));
     /* Initialize UART interfaces */
     uart0_init(UART_BAUD_SELECT(UART_BAUD, F_CPU));
     uart1_init(UART_BAUD_SELECT(UART_BAUD, F_CPU));
@@ -94,7 +98,6 @@ void main(void)
     /* Start terminal */
     microrl_init(prl, uart0_puts);
     microrl_set_execute_callback(prl, cli_execute);
-
     init_rfid_reader();
     /* Allow interruptions */
     sei();
