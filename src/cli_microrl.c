@@ -21,6 +21,7 @@ void cli_handle_number(const char *const *argv);
 void cli_print_cmd_error(void);
 void cli_print_cmd_arg_error(void);
 void cli_rfid_new(const char *const *argv);
+void cli_rfid_remove(const char *const *argv);
 
 typedef struct cli_cmd {
     PGM_P cmd;
@@ -45,6 +46,8 @@ const char read_help[] PROGMEM = "Identifies card that is being used with RFID r
 const char read_cmd[] PROGMEM = "read";
 const char new_help[] PROGMEM = "Add new card to authorized list";
 const char new_cmd[] PROGMEM = "new";
+const char remove_help[] PROGMEM = "Remove card from authorized list";
+const char remove_cmd[] PROGMEM = "remove";
 
 const cli_cmd_t cli_cmds[] = {
     {help_cmd, help_help, cli_print_help, 0},
@@ -53,13 +56,20 @@ const cli_cmd_t cli_cmds[] = {
     {ascii_cmd, ascii_help, cli_print_ascii_tbls, 0},
     {number_cmd, number_help, cli_handle_number, 1},
     {read_cmd, read_help, rfid_read, 0},
-    {new_cmd, new_help, cli_rfid_new, 2}
+    {new_cmd, new_help, cli_rfid_new, 2},
+    {remove_cmd, remove_help, cli_rfid_remove, 1}
 };
 
 void cli_rfid_new(const char *const *argv)
 {
     (void) argv;
     rfid_new(argv);
+}
+
+void cli_rfid_remove(const char *const *argv)
+{
+    (void) argv;
+    rfid_remove(argv);
 }
 
 void cli_print_help(const char *const *argv)

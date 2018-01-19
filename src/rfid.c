@@ -124,6 +124,43 @@ void rfid_new(const char *const *argv) {
     uart0_puts("\r\nUser name: ");
     uart0_puts(new_identity->client);
     uart0_puts("\r\n");
+}
 
+/* Remove RFID object from authorized list */
+void rfid_remove(const char *const *argv) {
+    identity_t *current = authorized_identities;
+    identity_t *prev = NULL;
+
+    /* Checking if ANY cards added at all */
+    if(authorized_identities == NULL) {
+        uart0_puts("No cards added to the system.\r\n");
+        return;
+    } else {
+        /* While still cards exist */
+        while(current != NULL) {
+            /* Specific card discovered? */
+            if(strcmp(argv[1], current->uid)) {
+                /* LETS REMOVE CARD */
+                uart0_puts("Card successfully removed!\r\n");
+                free(current);
+                return;
+            } else {
+                /* Not that card */
+                if(prev == NULL) {
+                    authorized_identities = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+            }
+
+            prev = current;
+            current = current->next;
+
+        }
+        /* 
+        GLITCH: success an not found messages are turned around :/ */
+        uart0_puts("Specific card was not found.\n\r");
+        return;
+    }
 
 }
