@@ -20,6 +20,7 @@ void cli_print_ascii_tbls(const char *const *argv);
 void cli_handle_number(const char *const *argv);
 void cli_print_cmd_error(void);
 void cli_print_cmd_arg_error(void);
+void cli_rfid_new(const char *const *argv);
 
 typedef struct cli_cmd {
     PGM_P cmd;
@@ -42,7 +43,8 @@ const char number_help[] PROGMEM =
     "Print and display matching number Usage: number <decimal number>";
 const char read_help[] PROGMEM = "Identifies card that is being used with RFID reader";
 const char read_cmd[] PROGMEM = "read";
-
+const char new_help[] PROGMEM = "Add new card to authorized list";
+const char new_cmd[] PROGMEM = "new";
 
 const cli_cmd_t cli_cmds[] = {
     {help_cmd, help_help, cli_print_help, 0},
@@ -50,8 +52,15 @@ const cli_cmd_t cli_cmds[] = {
     {example_cmd, example_help, cli_example, 3},
     {ascii_cmd, ascii_help, cli_print_ascii_tbls, 0},
     {number_cmd, number_help, cli_handle_number, 1},
-    {read_cmd, read_help, cli_rfid_read, 0}
+    {read_cmd, read_help, rfid_read, 0},
+    {new_cmd, new_help, cli_rfid_new, 2}
 };
+
+void cli_rfid_new(const char *const *argv)
+{
+    (void) argv;
+    rfid_new(argv);
+}
 
 void cli_print_help(const char *const *argv)
 {

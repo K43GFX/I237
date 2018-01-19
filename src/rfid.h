@@ -1,6 +1,7 @@
 #ifndef RFID_H_
 #define RFID_H_
 
-void cli_rfid_read(const char *const *argv);
+extern void rfid_read(const char *const *argv);
+extern void rfid_new(const char *const *argv);
 
 #endif
